@@ -1,0 +1,76 @@
+name: Build — Happy Little Gravekeeper
+
+on:
+  push:
+    branches:
+      - 'release/**'
+  workflow_dispatch:         # allows manual trigger from GitHub UI
+
+jobs:
+  build-windows:
+    name: Build Windows x64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Windows-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: Library-Windows-
+
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE:  ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL:    ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneWindows64
+          buildName: HappyLittleGravekeeper
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HappyLittleGravekeeper-Windows
+          path: build/StandaloneWindows64
+          retention-days: 30
+
+  build-linux:
+    name: Build Linux x64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Linux-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: Library-Linux-
+
+      - name: Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE:  ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL:    ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneLinux64
+          buildName: HappyLittleGravekeeper
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HappyLittleGravekeeper-Linux
+          path: build/StandaloneLinux64
+          retention-days: 30
